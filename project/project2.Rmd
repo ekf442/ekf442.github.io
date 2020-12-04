@@ -1,0 +1,296 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "Emma Friedman EKF442"
+date: '11/22/2020'
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+#HERE'S THE CLASSIFICAITON DIAGNOSTICS FUNCTION
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+library(lmtest)
+library(sandwich)
+library(ggplot2)
+library(dplyr)
+VPO <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/OFP.csv")
+VPO$age <- VPO$age * 10
+VPO$faminc <- VPO$faminc * 10000
+head(VPO)
+VPO %>% group_by(hlth) %>% count()
+n_distinct(VPO$emr)
+```
+
+# Modeling
+
+## Data Introduction
+The dataset I am using is titled, "Visits to Physician Office" from the item OFP in the Ecdat package. The original dataset has 4406 observations on 20 variables. The variables I will be using to build models and test hypotheses include the following: 
+'ofp' is the number of physician office visits.
+'emr' is the number of emergency room visits. 
+'age' is the age in years of the individual.
+'sex' indicates whether the individual is male or female. 
+'adldiff' is a binary variable that is represented by a 1 if the person has a condition that limits activities of daily living and a 0 if not. 
+'hlth' is the individuals self-perceived health in these groups: excellent, poor, other.
+'privins' indicates if the person is covered by private health insurance.
+'faminc' is the family income, in dollars, of the individual. 
+'numchron' is the number of chronic conditions.
+
+## 1. MANOVA 
+```{r}
+#Multivariate plots 
+ggplot(VPO, aes(x = age, y = ofp)) +
+geom_point(alpha = .5) + geom_density_2d(h=2) + coord_fixed() + facet_wrap(~hlth)
+
+#MANOVA
+man1<-manova(cbind(age,ofp)~hlth, data=VPO)
+summary(man1)
+#Get univariate ANOVAs from MANOVA object
+summary.aov(man1) 
+
+#MANOVA Assumptions
+library(rstatix)
+group <- VPO$hlth 
+DVs <- VPO %>% select(age,ofp)
+#Test multivariate normality for each group
+sapply(split(DVs,group), mshapiro_test)
+
+#Box's M test (null: assumption met)
+box_m(DVs, group)
+#Optionally, view covariance matrices for each group
+lapply(split(DVs,group), cov)
+
+VPO%>%group_by(hlth)%>%summarize(mean(age),mean(ofp))
+
+pairwise.t.test(VPO$age,VPO$hlth, p.adj="none")
+pairwise.t.test(VPO$ofp,VPO$hlth, p.adj="none")
+
+1-(0.95^9) #probability of at least one type I error
+```
+The assumptions for MANOVA were violated as I failed to reject the null hypothesis that assumptions were met (p < 0.05). The assumptions for MANOVA include random samples and independent observations, multivariate normality of DVs, homogeneity of within-group covariance matrices, linear relationships among DVs, no extreme univariate or multivariate outliers, and no multicollinearity. I performed 1 MANOVA, 2 ANOVAs, and 6 t-tests (9 tests), therfore I should use α = .05/9 = .0056 as the bonferroni corrected significance level. With 9 tests, the probability of making at least one type I error is 0.3698 without correction. For the patient office visits (ofp) variable, there is a mean difference across all of the levels of health (poor, other, and excellent) because the p-values are all less than 0.0056. For the age variable, there is a mean difference across the levels other vs poor and excellent vs poor (p-value < 0.0056). There is not a significant difference for age across the health levels excellent vs other  (p-value = 0.036) using the bonferroni corrected significance level. 
+
+## 2. Randomization Test
+```{r}
+ggplot(VPO,aes(ofp,fill=sex))+geom_histogram(bins=6.5)+
+  facet_wrap(~sex,ncol=2)+theme(legend.position="none")
+VPO%>%group_by(sex)%>%
+  summarize(means=mean(ofp))%>%summarize(`mean_diff`=diff(means))
+
+rand_dist<-vector() #create vector to hold diffs under null hypothesis
+for(i in 1:5000){
+new<-data.frame(ofp=sample(VPO$ofp),sex=VPO$sex) #scramble columns
+rand_dist[i]<-mean(new[new$sex=="female",]$ofp)-   
+              mean(new[new$sex=="male",]$ofp)} #compute mean difference 
+{hist(rand_dist,main="",ylab=""); abline(v = c(-0.5939, 0.5939),col="red")}
+mean(rand_dist > 0.5939 | rand_dist < -0.5939) #pvalue
+
+```
+
+The null hypothesis is that there is no mean difference in physician office visits between males and females. The alternative hypothesis is that there is a mean difference in physician office visits between males and females.
+
+$H_0:\mu_{female}=\mu_{male}$ vs. $H_A:\mu_{female}\ne \mu_{male}$
+
+Females visit the physician office 0.5939 times more on average than males. 
+After performing randomization, the p-value was 0.0056, which indicates we are able to reject the null hypothesis and say there is a mean difference in physician office visits between males and females. 
+
+## 3. Linear Regression Model
+```{r}
+VPO$faminc_c <- VPO$faminc - mean(VPO$faminc)
+fit<-lm(ofp ~ privins*faminc_c, data=VPO)
+summary(fit)
+exp(coef(fit))
+
+ggplot(VPO, aes(faminc_c,ofp, color = privins)) + geom_smooth(method = "lm", se = F, fullrange = T)+geom_point()+geom_vline(xintercept=0,lty=2)
+
+#Assumptions (linearity and homoskedasticity)
+resids<-fit$residuals; fitvals<-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, col="red")
+bptest(fit)
+#Assumptions (normality)
+ggplot()+geom_histogram(aes(resids),bins=20)
+ks.test(resids, "pnorm", sd=sd(resids))
+
+#Regression using robust standard errors
+coeftest(fit, vcov=vcovHC(fit))
+
+#adjusted r-squared
+(sum((VPO$ofp-mean(VPO$ofp))^2)-sum(fit$residuals^2))/sum((VPO$ofp-mean(VPO$ofp))^2)
+
+#uncorrected SEs
+summary(fit)$coef[,1:2]
+#corrected SE
+coeftest(fit, vcov = vcovHC(fit))[,1:2]
+```
+This model is predicting the number of physician office visits from the interaction of insurance (private or not) and family income. The predicted physician office visits (ofp) for an individual with an average family income and no private insurance is 4.716 visits. For a person of average family income, physician office visits is 1.311 greater for those with private insurance than those without. Those without private insurance show a decrease of 2.280e-05 in physician office visits for every 1-unit increase in family income on average. The slope for average family income on physician office visits is 2.107e-05 greater for those with private insurance than those without. The adjusted R-squared is equal to 0.00564, therefore 0.564% of the variation is explained by the model. The model violated the assumptions of linearity, normality, and homoskedasticity (p < 0.05). After recomputing the regression results with robust standard errors, it is evident that the uncorrected and corrected SEs are extremely similar.
+
+
+## 4. Bootstrapped Standard Errors
+```{r}
+fit<-lm(ofp ~ privins*faminc_c, data=VPO)
+resids<-fit$residuals
+fitted<-fit$fitted.values
+resid_resamp<-replicate(5000,{
+new_resids<-sample(resids,replace=TRUE)
+newdat<-VPO
+newdat$new_y<-fitted+new_resids
+fit<-lm(new_y ~ privins*faminc_c, data = newdat)
+coef(fit)
+})
+
+## Bootstrapped SEs (resampling residuals)
+resid_resamp%>%t%>%as.data.frame%>%summarize_all(sd)
+```
+The bootstrapped SEs are extremely similar to the original SEs, and differ slightly to the robust SEs (specifically for 'faminc_c'). Overall, the SE and p-values are similar among each model. 
+
+## 5. Logistic Regression Model Predicting a Binary Variable 
+```{r}
+VPO$emr_c <- VPO$emr - mean(VPO$emr, na.rm = T)
+VPO$ofp_c <- VPO$ofp - mean(VPO$ofp, na.rm = T)
+fit5<-lm(adldiff ~ emr_c + ofp_c, data=VPO, family = "binomial"(link="logit"))
+summary(fit5)
+exp(coef(fit5))
+
+prob<-predict(fit5,type="response") 
+pred<-ifelse(prob>.5,1,0)
+table(prediction=pred, truth=VPO$adldiff) %>% addmargins
+
+(3497+24)/4406 #accuracy
+3497/4372 #sensitivity (tpr)
+24/34 #specificity (tnr)
+3497/3507 #ppv (precision)
+
+VPO$logit<-predict(fit5)
+VPO %>% mutate(adldiff = as.character(adldiff)) %>% ggplot(aes(x = logit,fill = adldiff,color = adldiff)) + geom_density(alpha = 0.4) +
+  scale_fill_discrete(name='Condition that interferes with daily life',labels=c("No", "Yes"))+
+  scale_color_discrete(name='Condition that interferes with daily life',labels=c("No", "Yes"))
+
+library(plotROC)
+ROCplot <- ggplot(VPO)+geom_roc(aes(d=adldiff,m=prob), n.cuts=0)+ geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2)
+ROCplot
+calc_auc(ROCplot)
+
+```
+The odds of having a condition that limits activities of daily living when the number of physican office visits is 0 and the number of emergency room visits is 0 is 1.2263. Controlling for physican office visits, for every one addtional emergency room visit, the odds of having a condition that limits activities of daily living increases by a factor of 1.0914. Controlling for emergency room visits, for every one addtional physican office visit, the odds of having a condition that limits activities of daily living increases by a factor of 1.0053. The AUC is 0.6162268, which is fair. Sensitivity is 0.79986, which is the true positive rate. The probability of predicting (1) if it is actually true is 79.99%. The true negative rate, or specificity, is 0.70588. The probability of predicting (0) if it is actually false is 70.59%. Precision (PPV) is the proportion of those classified as healthy who actually are, which is 99.71%. The ROC curve allows us to visualize the trade-off between sensitivity and specificity. Curves that are closer to the top-left corner indicate a better performance, so therefore this is a below average classifier. The closer the curve is to the diagonal (FPR = TPR), the less accurate the test.
+
+
+## 6. Logistic regression using all variables
+```{r}
+set.seed(1234)
+fit6 <- glm(adldiff~., data=VPO, family="binomial")
+summary(fit6)
+
+logodds <- predict(fit6, type="link") 
+prob <- predict(fit6, type="response")
+class_diag(prob,VPO$adldiff)
+table(predict=as.numeric(prob>.5),truth=VPO$adldiff)%>%addmargins
+
+#Repeated random sub-sampling
+set.seed(1234)
+k=10
+
+data<-VPO[sample(nrow(VPO)),] #randomly order rows
+folds<-cut(seq(1:nrow(VPO)),breaks=k,labels=F) #create folds
+diags<-NULL
+for(i in 1:k){
+  ## Create training and test sets
+  train<-data[folds!=i,]
+  test<-data[folds==i,]
+  truth<-test$adldiff ## Truth labels for fold i
+  ## Train model on training set (all but fold i)
+  fit<-glm(adldiff~.,data=train,family="binomial")
+  ## Test model on test set (fold i)
+  probs<-predict(fit,newdata = test,type="response")
+  ## Get diagnostics for fold i
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+  
+summarize_all(diags,mean)
+
+#LASSO
+library(glmnet)
+y<-as.matrix(VPO$adldiff) #grab response
+x<-model.matrix(adldiff~-1+.,data=VPO) #grab predictors
+head(x); x<-scale(x)
+cv<-cv.glmnet(x,y,family="binomial")
+lasso<-glmnet(x,y,family="binomial",lambda=cv$lambda.1se)
+coef(lasso)
+
+#CV on variables that lasso selected
+set.seed(1234)
+k=10 #choose number of folds
+#create dummies for the ranks
+VPO<-VPO %>% mutate(sexmale=ifelse(VPO$sex=="male",1,0),
+marriedyes=ifelse(VPO$maried=="yes",1,0),medicaidyes=ifelse(VPO$medicaid=="yes",1,0), poorhealth=ifelse(VPO$hlth=="poor",1,0))
+
+data1<-VPO[sample(nrow(VPO)),] #randomly order rows
+folds<-cut(seq(1:nrow(VPO)),breaks=k,labels=F) #create folds
+diags<-NULL
+for(i in 1:k){
+## Create training and test sets
+train<-data1[folds!=i,]
+test<-data1[folds==i,]
+truth<-test$adldiff
+## Train model on training set
+fit<-glm(adldiff~hosp+numchron+age+school+marriedyes+sexmale+medicaidyes+poorhealth,data=train,family="binomial")
+probs<-predict(fit,newdata = test,type="response")
+## Test model on test set (save all k results)
+diags<-rbind(diags,class_diag(probs,truth))
+}
+diags%>%summarize_all(mean)
+
+```
+The in-sample model has an AUC of 0.8253, which is good! Sensitivity is 0.3437, which is the true positive rate. The probability of predicting (1) if it is actually true is 34.37%. The true negative rate, or specificity, is 0.9495. The probability of predicting (0) if it is actually false is 94.95%. Precision (PPV) is the proportion of those classified in good health who actually are, which is 63.58%.
+The out-of-sample model has an AUC of 0.8198, which is good but lower than the in-sample AUC, which indicates overfitting! Sensitivity is 0.3344, which is the true positive rate. The probability of predicting (1) if it is actually true is 33.44%. The true negative rate, or specificity, is 0.9474 The probability of predicting (0) if it is actually false is 94.74%. Precision (PPV) is the proportion of those classified as in good health who actually are, which is 62.11%. The classification diagnostics are very similar for both models. After performing LASSO, the variables that are retained are hosp, numchron, age, school, sex, maried, employed, medicaid, and hlthpoor. The AUC for the logistic regression using the variables lasso selected was 0.8168, which is good. This AUC is very similar to the out-of-sample AUC.
+
+
+...
+
+
+
+
+

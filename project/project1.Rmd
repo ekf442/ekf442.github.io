@@ -1,0 +1,137 @@
+---
+title: 'Project 1: Exploratory Data Analysis'
+author: 'Emma Friedman EKF442'
+date: '10/18/2020'
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+  pdf_document:
+    toc: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F,
+tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
+
+library(dplyr)
+library(readr)
+library(tidyverse)
+TeenPregnancy <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/TeenPregnancy.csv")
+head(TeenPregnancy)
+
+SAT <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/mosaicData/SAT.csv")
+SAT <- SAT %>% mutate(state = str_replace(state,state.name,state.abb)) %>% rename(State=state)
+head(SAT)
+```
+
+## Analyzing Teen Pregnancy and Educational Data by U.S. State
+
+For this project, I was initially interested by the 'TeenPregnancy' dataset found in the 'Stat2Data' r package, and decided to further compare it to SAT scores and measures of educational expenditures data collected per state. This data was found in the 'SAT' dataset from the 'mosaicData' r package. 'TeenPregnancy' contains the variables: State (State abbreviation), CivilWar (Role in Civil War), Church (Percentage who attended church in previous week (found from a state survey)), and Teen (Number of pregnancies per 1000 teenage girls in state). 'SAT' contains variables such as: state, expend (expenditure per pupil in average daily attendance in public elementary and secondary schools, 1994-95 (in thousands of US dollars)), salary (estimated average annual salary of teachers in public elementary and secondary schools, 1994-95 (in thousands of US dollars)), and sat (average total SAT score, 1994-95)). I found these to be interesting because I am curious if there is any potential association between teen pregnancies and SAT scores/ measures of educational expenditures. 
+
+
+## Joining the Datasets
+
+To generate one comprehensive dataset, I decided to use full_join. I did this because my datasets only share the 'state' variable, and I want to analyze how the other variables in the datasets vary by state. There are zero observations dumped after the full join because both datasets include data from all fifty states. 
+
+```{r}
+
+str(TeenPregnancy)
+str(SAT)
+
+setdiff(TeenPregnancy$State,SAT$State)
+
+project1 <- full_join(TeenPregnancy,SAT, by = "State")
+
+```
+
+## Wrangling and Summary Statistics
+Following the join, I removed two variables that are irrelevant to my project analysis using the select function, and recoded the names in the civil war variable column using mutate for clarification. I filtered the data to return only the states with an average total SAT score greater than or equal to 1000 and arranged them based on the descending order of the number of pregnancies per 1000 teenage girls in the state. Next I grouped the data by the states role in the civil war and found the average number of pregnancies per 1000 teenage girls in the state based on civil war role by using the summarize function. Using mutate, I created a new categorical variable, 'expend_cat', that classifies the expenditure of each state as either 'high','medium', or 'low' based off the quantile values of the 'expend' variable. 
+I created summary statistics (mean, sd, min, max) and pivoted the data to make it more readable. I did this by using 'pivot_longer' and 'separate' to get the statistic and variable in their own column, then used 'pivot_wider' to give each statistic their own column. I repeated this same process grouping by 'CivilWar' to get the summary statistics based off grouping, and also used summarize to count the number of states per each 'CivilWar' type. 
+I created a correlation matrix with my numeric variables.
+
+```{r}
+
+project1 <- project1 %>% select(-one_of('X', 'X1')) %>% mutate(CivilWar=recode(CivilWar, 'B'= "Border", 'U'= "Union", 'O'= "Other", 'C'= "Confederate"))
+
+project1 %>% filter(sat>=1000) %>% arrange(desc(Teen)) 
+ 
+project1 %>% group_by(CivilWar) %>% summarize(mean(Teen))
+quantile(project1$expend)
+project1 %>% mutate(expend_cat = case_when(expend>6.5 ~ "high",
+expend<=6.5 & 4.8<=expend ~ "medium",
+expend<4.8 ~ "low"))
+
+
+project1 %>% summarize_if(is.numeric, list(mean=mean,sd=sd,min=min,max=max),na.rm=T) %>% pivot_longer(contains("_")) %>% separate(name,into=c("variable","statistic")) %>% pivot_wider(names_from = "statistic", values_from = "value")
+
+project1 %>% group_by(CivilWar) %>% summarize_if(is.numeric, list(mean=mean,sd=sd,min=min,max=max),na.rm=T) %>% pivot_longer(contains("_")) %>% separate(name,into=c("variable","statistic")) %>% pivot_wider(names_from = "statistic", values_from = "value")
+
+project1 %>% group_by(CivilWar) %>% summarize_if(is.character, n_distinct)
+
+project1 %>% select_if(is.numeric) %>% cor(use="pair") 
+
+```
+
+ 
+## Visualizations
+
+```{r}
+#Correlation heatmap of numeric variables.
+project1 %>% select_if(is.numeric) %>% cor(use="pair") %>% as.data.frame %>% 
+rownames_to_column %>% pivot_longer(-1)%>%
+ggplot(aes(rowname,name,fill=value))+geom_tile()+
+geom_text(aes(label=round(value,2)))+
+xlab("")+ylab("")+theme(axis.text.x = element_text(angle = 90, hjust=1))+ coord_fixed()+scale_fill_gradient2(low="red",mid="white",high="blue")
+
+#Scatterplot. 
+project1 %>%ggplot(aes(x=Church, y=Teen))+geom_point(aes(color = CivilWar))+theme_light()+ggtitle("Teen Pregnancy and Church Attendance by Civil War State Role")+theme(legend.position = "bottom")+scale_color_discrete()+xlab("Church Attendance (Percentage)")+ylab("Pregnancies (per 1000 teenage girls in state)")
+
+#Bar chart.
+project1 %>% mutate(expend_cat = case_when(expend>6.5 ~ "high",
+expend<=6.5 & 4.8<=expend ~ "medium", expend<4.8 ~ "low")) %>% ggplot(aes(CivilWar,salary, fill=CivilWar))+geom_bar(stat="summary", fun=mean)+facet_wrap(~expend_cat)+xlab("Civil War Role of State")+ylab("Average Teacher Salary (in thousands of US dollars)")+ggtitle("Teacher Salary and Civil War State Role by Levels of Expenditure per Student")+scale_fill_brewer(palette = "Blues")+ theme(axis.text.x = element_text(angle = 60, vjust = 0.4))
+
+```
+The correlation heatmap primarily shows moderate correlations between most of the numeric variables. Overall, 'verbal', 'sat', 'math', and 'frac' all show strong correlations with each other. 'Salary' and 'expend' have a fairly strong positive correlation of 0.87. 
+The scatterplot shows an overall positive correlation between church attendance and teen pregnancies. The 'confederate' states tend to have a higher church attendance percentage and reported teen pregnancies, while the 'union' states tend to have a lower church attendance percentage and reported teen pregnancies. 'Border' and 'other' states generally fall in the middle range relative to the other states. 
+The bar chart shows that 'medium' level expenditures are found in all civil war state types, and that the 'union' states in the medium range have the highest average teacher salary while the 'border' states in the medium range have the lowest average teacher salary. 'Low' level expenditures are found only in 'other' and 'confederate' states and have the lowest average teacher salary overall. 'High' level expenditures are found only in 'other' and 'union' states and have the highest average teacher salary overall. 'High' level expenditures have higher average teacher salaries whereas 'low' level expenditures have the lowest average teacher salaries.
+ 
+## Dimensionality Reduction 
+
+```{r}
+#Determine appropriate number of clusters.
+library(cluster)
+pam_dat<- project1%>%select(Teen,sat,salary)
+kmeans1 <- pam_dat%>%scale%>% kmeans(3)
+kmeans1
+kmeansclust <- project1 %>% mutate(cluster=as.factor(kmeans1$cluster))
+sil_width<-vector()
+for(i in 2:10){
+  kms <- kmeans(pam_dat, centers = i)
+  sil <- silhouette(kms$cluster, dist(project1))
+  sil_width[i] <- mean(sil[,3])
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name="k",breaks=1:10)
+ 
+pam1 <- pam_dat %>% pam(k=2)
+pam1
+pamclust <- pam_dat %>% mutate(cluster=as.factor(pam1$clustering))
+library(tidyverse)
+library(dplyr)
+library(GGally)
+pamclust %>% ggpairs(columns = 1:3, aes(color=cluster))
+pamclust %>% group_by(cluster) %>% summarize_if(is.numeric,mean,na.rm=T)
+plot(pam1,which=2)
+
+```
+
+To begin the cluster analysis, I first processed my data by scaling three of my numeric variables because the units differ: 'Teen','sat', and 'salary'. I then choose my number of clusters by selecting the k value with the highest silhouette width on the graph. This value was 2. The average silhouette width is 0.67, which is interpreted as reasonable structure being found.I used only numerical values, so using gower was not necessary, and I ran PAM cluster analysis. From the visualization of the clusters, the correlation between 'sat' and 'Teen' is -0.146. The correlation between 'salary' and 'Teen' is -0.193. The correlation between 'salary' and 'sat' is -0.440. None of these correlation values show strong correlation. 
+
+...
+
+
+
+
+

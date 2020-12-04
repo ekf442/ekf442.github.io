@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Chris Turner</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Chris Turner</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Project 1: Exploratory Data Analysis</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Analyzing Teen Pregnancy and Educational Data by U.S. State For this project, I was initially interested by the &#39;TeenPregnancy&#39; dataset found in the &#39;Stat2Data&#39; r package, and decided to further compare it to SAT scores and measures of educational expenditures data collected per state. This data was found in the &#39;SAT&#39; dataset from the &#39;mosaicData&#39; r package. &#39;TeenPregnancy&#39; contains the variables: State (State abbreviation), CivilWar (Role in Civil War), Church (Percentage who attended church in previous week (found from a state survey)), and Teen (Number of pregnancies per 1000 teenage girls in state).</description>
+    </item>
+    
+    <item>
+      <title>Project 2: Modeling, Testing, and Predicting</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Modeling Data Introduction The dataset I am using is titled, &amp;quot;Visits to Physician Office&amp;quot; from the item OFP in the Ecdat package. The original dataset has 4406 observations on 20 variables. The variables I will be using to build models and test hypotheses include the following: &#39;ofp&#39; is the number of physician office visits. &#39;emr&#39; is the number of emergency room visits. &#39;age&#39; is the age in years of the individual.</description>
+    </item>
+    
+  </channel>
+</rss>

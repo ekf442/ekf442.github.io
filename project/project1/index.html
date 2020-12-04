@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Emma Friedman" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="analyzing-teen-pregnancy-and-educational-data-by-u.s.-state" class="section level2">
+<h2>Analyzing Teen Pregnancy and Educational Data by U.S. State</h2>
+<p>For this project, I was initially interested by the 'TeenPregnancy' dataset found in the 'Stat2Data' r package, and decided to further compare it to SAT scores and measures of educational expenditures data collected per state. This data was found in the 'SAT' dataset from the 'mosaicData' r package. 'TeenPregnancy' contains the variables: State (State abbreviation), CivilWar (Role in Civil War), Church (Percentage who attended church in previous week (found from a state survey)), and Teen (Number of pregnancies per 1000 teenage girls in state). 'SAT' contains variables such as: state, expend (expenditure per pupil in average daily attendance in public elementary and secondary schools, 1994-95 (in thousands of US dollars)), salary (estimated average annual salary of teachers in public elementary and secondary schools, 1994-95 (in thousands of US dollars)), and sat (average total SAT score, 1994-95)). I found these to be interesting because I am curious if there is any potential association between teen pregnancies and SAT scores/ measures of educational expenditures.</p>
+</div>
+<div id="joining-the-datasets" class="section level2">
+<h2>Joining the Datasets</h2>
+<p>To generate one comprehensive dataset, I decided to use full_join. I did this because my datasets only share the 'state' variable, and I want to analyze how the other variables in the datasets vary by state. There are zero observations dumped after the full join because both datasets include data from all fifty states.</p>
+<pre class="r"><code>str(TeenPregnancy)</code></pre>
+<pre><code>## tibble [50 × 5] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ X1      : num [1:50] 1 2 3 4 5 6 7 8 9 10 ...
+##  $ State   : chr [1:50] &quot;AK&quot; &quot;AL&quot; &quot;AR&quot; &quot;AZ&quot; ...
+##  $ CivilWar: chr [1:50] &quot;O&quot; &quot;C&quot; &quot;C&quot; &quot;O&quot; ...
+##  $ Church  : num [1:50] 26 46 45 33 28 25 25 35 32 39 ...
+##  $ Teen    : num [1:50] 64 62 73 60 59 50 44 67 60 64 ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   X1 = col_double(),
+##   ..   State = col_character(),
+##   ..   CivilWar = col_character(),
+##   ..   Church = col_double(),
+##   ..   Teen = col_double()
+##   .. )</code></pre>
+<pre class="r"><code>str(SAT)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    50 obs. of  9 variables:
+##  $ X     : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ State : chr  &quot;AL&quot; &quot;AK&quot; &quot;AZ&quot; &quot;AR&quot; ...
+##  $ expend: num  4.41 8.96 4.78 4.46 4.99 ...
+##  $ ratio : num  17.2 17.6 19.3 17.1 24 18.4 14.4 16.6 19.1 16.3 ...
+##  $ salary: num  31.1 48 32.2 28.9 41.1 ...
+##  $ frac  : int  8 47 27 6 45 29 81 68 48 65 ...
+##  $ verbal: int  491 445 448 482 417 462 431 429 420 406 ...
+##  $ math  : int  538 489 496 523 485 518 477 468 469 448 ...
+##  $ sat   : int  1029 934 944 1005 902 980 908 897 889 854 ...</code></pre>
+<pre class="r"><code>setdiff(TeenPregnancy$State, SAT$State)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code>project1 &lt;- full_join(TeenPregnancy, SAT, by = &quot;State&quot;)</code></pre>
+</div>
+<div id="wrangling-and-summary-statistics" class="section level2">
+<h2>Wrangling and Summary Statistics</h2>
+<p>Following the join, I removed two variables that are irrelevant to my project analysis using the select function, and recoded the names in the civil war variable column using mutate for clarification. I filtered the data to return only the states with an average total SAT score greater than or equal to 1000 and arranged them based on the descending order of the number of pregnancies per 1000 teenage girls in the state. Next I grouped the data by the states role in the civil war and found the average number of pregnancies per 1000 teenage girls in the state based on civil war role by using the summarize function. Using mutate, I created a new categorical variable, 'expend_cat', that classifies the expenditure of each state as either 'high','medium', or 'low' based off the quantile values of the 'expend' variable. I created summary statistics (mean, sd, min, max) and pivoted the data to make it more readable. I did this by using 'pivot_longer' and 'separate' to get the statistic and variable in their own column, then used 'pivot_wider' to give each statistic their own column. I repeated this same process grouping by 'CivilWar' to get the summary statistics based off grouping, and also used summarize to count the number of states per each 'CivilWar' type. I created a correlation matrix with my numeric variables.</p>
+<pre class="r"><code>project1 &lt;- project1 %&gt;% select(-one_of(&quot;X&quot;, &quot;X1&quot;)) %&gt;% mutate(CivilWar = recode(CivilWar, 
+    B = &quot;Border&quot;, U = &quot;Union&quot;, O = &quot;Other&quot;, C = &quot;Confederate&quot;))
+
+project1 %&gt;% filter(sat &gt;= 1000) %&gt;% arrange(desc(Teen))</code></pre>
+<pre><code>## # A tibble: 20 x 11
+##    State CivilWar    Church  Teen expend ratio salary  frac verbal  math   sat
+##    &lt;chr&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;  &lt;int&gt; &lt;int&gt; &lt;int&gt;
+##  1 NM    Other           36    80   4.59  17.2   28.5    11    485   530  1015
+##  2 MS    Confederate     47    76   4.08  17.5   26.8     4    496   540  1036
+##  3 AR    Confederate     45    73   4.46  17.1   28.9     6    482   523  1005
+##  4 LA    Confederate     46    69   4.76  16.8   26.5     9    486   535  1021
+##  5 OK    Border          39    69   4.84  15.5   28.2     9    491   536  1027
+##  6 AL    Confederate     46    62   4.40  17.2   31.1     8    491   538  1029
+##  7 TN    Confederate     42    62   4.39  18.6   32.5    12    497   543  1040
+##  8 IL    Union           32    57   6.14  17.3   39.4    13    488   560  1048
+##  9 WY    Other           28    56   6.16  14.9   31.3    10    476   525  1001
+## 10 MO    Border          35    54   5.38  15.5   31.2     9    495   550  1045
+## 11 KS    Union           33    53   5.82  15.1   34.7     9    503   557  1060
+## 12 MT    Other           27    53   5.69  16.3   28.8    21    473   536  1009
+## 13 MI    Union           32    52   6.99  20.1   41.9    11    484   549  1033
+## 14 SD    Other           31    47   4.78  14.4   26.0     5    505   563  1068
+## 15 IA    Union           32    44   5.48  15.8   31.5     5    516   583  1099
+## 16 NE    Other           35    43   5.94  14.5   30.9     9    494   556  1050
+## 17 ND    Other           32    42   4.78  15.3   26.3     5    515   592  1107
+## 18 WI    Union           29    39   6.93  15.9   37.7     9    501   572  1073
+## 19 UT    Other           51    38   3.66  24.3   29.1     4    513   563  1076
+## 20 MN    Union           31    36   6     17.5   35.9     9    506   579  1085</code></pre>
+<pre class="r"><code>project1 %&gt;% group_by(CivilWar) %&gt;% summarize(mean(Teen))</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   CivilWar    `mean(Teen)`
+##   &lt;chr&gt;              &lt;dbl&gt;
+## 1 Border              61.7
+## 2 Confederate         64.6
+## 3 Other               55.1
+## 4 Union               48.2</code></pre>
+<pre class="r"><code>quantile(project1$expend)</code></pre>
+<pre><code>##      0%     25%     50%     75%    100% 
+## 3.65600 4.88175 5.76750 6.43400 9.77400</code></pre>
+<pre class="r"><code>project1 %&gt;% mutate(expend_cat = case_when(expend &gt; 6.5 ~ &quot;high&quot;, 
+    expend &lt;= 6.5 &amp; 4.8 &lt;= expend ~ &quot;medium&quot;, expend &lt; 4.8 ~ 
+        &quot;low&quot;))</code></pre>
+<pre><code>## # A tibble: 50 x 12
+##    State CivilWar Church  Teen expend ratio salary  frac verbal  math   sat
+##    &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;  &lt;int&gt; &lt;int&gt; &lt;int&gt;
+##  1 AK    Other        26    64   8.96  17.6   48.0    47    445   489   934
+##  2 AL    Confede…     46    62   4.40  17.2   31.1     8    491   538  1029
+##  3 AR    Confede…     45    73   4.46  17.1   28.9     6    482   523  1005
+##  4 AZ    Other        33    60   4.78  19.3   32.2    27    448   496   944
+##  5 CA    Union        28    59   4.99  24     41.1    45    417   485   902
+##  6 CO    Other        25    50   5.44  18.4   34.6    29    462   518   980
+##  7 CT    Union        25    44   8.82  14.4   50.0    81    431   477   908
+##  8 DE    Union        35    67   7.03  16.6   39.1    68    429   468   897
+##  9 FL    Confede…     32    60   5.72  19.1   32.6    48    420   469   889
+## 10 GA    Confede…     39    64   5.19  16.3   32.3    65    406   448   854
+## # … with 40 more rows, and 1 more variable: expend_cat &lt;chr&gt;</code></pre>
+<pre class="r"><code>project1 %&gt;% summarize_if(is.numeric, list(mean = mean, sd = sd, 
+    min = min, max = max), na.rm = T) %&gt;% pivot_longer(contains(&quot;_&quot;)) %&gt;% 
+    separate(name, into = c(&quot;variable&quot;, &quot;statistic&quot;)) %&gt;% pivot_wider(names_from = &quot;statistic&quot;, 
+    values_from = &quot;value&quot;)</code></pre>
+<pre><code>## # A tibble: 9 x 5
+##   variable   mean    sd    min     max
+##   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+## 1 Church    32.6   7.50  17      51   
+## 2 Teen      54.7  11.7   28      80   
+## 3 expend     5.91  1.36   3.66    9.77
+## 4 ratio     16.9   2.27  13.8    24.3 
+## 5 salary    34.8   5.94  26.0    50.0 
+## 6 frac      35.2  26.8    4      81   
+## 7 verbal   457.   35.2  401     516   
+## 8 math     509.   40.2  443     592   
+## 9 sat      966.   74.8  844    1107</code></pre>
+<pre class="r"><code>project1 %&gt;% group_by(CivilWar) %&gt;% summarize_if(is.numeric, 
+    list(mean = mean, sd = sd, min = min, max = max), na.rm = T) %&gt;% 
+    pivot_longer(contains(&quot;_&quot;)) %&gt;% separate(name, into = c(&quot;variable&quot;, 
+    &quot;statistic&quot;)) %&gt;% pivot_wider(names_from = &quot;statistic&quot;, values_from = &quot;value&quot;)</code></pre>
+<pre><code>## # A tibble: 36 x 6
+##    CivilWar    variable    mean     sd    min     max
+##    &lt;chr&gt;       &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Border      Church     38.3   3.06   35      41   
+##  2 Border      Teen       61.7   7.51   54      69   
+##  3 Border      expend      5.15  0.275   4.84    5.38
+##  4 Border      ratio      16     0.866  15.5    17   
+##  5 Border      salary     30.5   2.12   28.2    32.3 
+##  6 Border      frac        9.67  1.15    9      11   
+##  7 Border      verbal    488.    9.45  477     495   
+##  8 Border      math      536    14     522     550   
+##  9 Border      sat      1024.   23.2   999    1045   
+## 10 Confederate Church     41.2   4.79   32      47   
+## # … with 26 more rows</code></pre>
+<pre class="r"><code>project1 %&gt;% group_by(CivilWar) %&gt;% summarize_if(is.character, 
+    n_distinct)</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   CivilWar    State
+##   &lt;chr&gt;       &lt;int&gt;
+## 1 Border          3
+## 2 Confederate    11
+## 3 Other          15
+## 4 Union          21</code></pre>
+<pre class="r"><code>project1 %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;)</code></pre>
+<pre><code>##            Church       Teen     expend        ratio       salary       frac
+## Church  1.0000000  0.5091749 -0.5861965  0.232311353 -0.512863288 -0.4915622
+## Teen    0.5091749  1.0000000 -0.2361560  0.132242669 -0.193013117 -0.1784025
+## expend -0.5861965 -0.2361560  1.0000000 -0.371025386  0.869801513  0.5926274
+## ratio   0.2323114  0.1322427 -0.3710254  1.000000000 -0.001146081 -0.2130536
+## salary -0.5128633 -0.1930131  0.8698015 -0.001146081  1.000000000  0.6167799
+## frac   -0.4915622 -0.1784025  0.5926274 -0.213053607  0.616779867  1.0000000
+## verbal  0.3457575 -0.1167030 -0.4100499  0.063766636 -0.476963635 -0.8932630
+## math    0.2505191 -0.1699791 -0.3494141  0.095421730 -0.401312817 -0.8693839
+## sat     0.2971697 -0.1462045 -0.3805370  0.081253823 -0.439883381 -0.8871187
+##             verbal        math         sat
+## Church  0.34575752  0.25051909  0.29716967
+## Teen   -0.11670296 -0.16997908 -0.14620446
+## expend -0.41004987 -0.34941409 -0.38053700
+## ratio   0.06376664  0.09542173  0.08125382
+## salary -0.47696364 -0.40131282 -0.43988338
+## frac   -0.89326296 -0.86938393 -0.88711868
+## verbal  1.00000000  0.97025604  0.99150325
+## math    0.97025604  1.00000000  0.99350238
+## sat     0.99150325  0.99350238  1.00000000</code></pre>
+</div>
+<div id="visualizations" class="section level2">
+<h2>Visualizations</h2>
+<pre class="r"><code># Correlation heatmap of numeric variables.
+project1 %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;) %&gt;% 
+    as.data.frame %&gt;% rownames_to_column %&gt;% pivot_longer(-1) %&gt;% 
+    ggplot(aes(rowname, name, fill = value)) + geom_tile() + 
+    geom_text(aes(label = round(value, 2))) + xlab(&quot;&quot;) + ylab(&quot;&quot;) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+    coord_fixed() + scale_fill_gradient2(low = &quot;red&quot;, mid = &quot;white&quot;, 
+    high = &quot;blue&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Scatterplot.
+project1 %&gt;% ggplot(aes(x = Church, y = Teen)) + geom_point(aes(color = CivilWar)) + 
+    theme_light() + ggtitle(&quot;Teen Pregnancy and Church Attendance by Civil War State Role&quot;) + 
+    theme(legend.position = &quot;bottom&quot;) + scale_color_discrete() + 
+    xlab(&quot;Church Attendance (Percentage)&quot;) + ylab(&quot;Pregnancies (per 1000 teenage girls in state)&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Bar chart.
+project1 %&gt;% mutate(expend_cat = case_when(expend &gt; 6.5 ~ &quot;high&quot;, 
+    expend &lt;= 6.5 &amp; 4.8 &lt;= expend ~ &quot;medium&quot;, expend &lt; 4.8 ~ 
+        &quot;low&quot;)) %&gt;% ggplot(aes(CivilWar, salary, fill = CivilWar)) + 
+    geom_bar(stat = &quot;summary&quot;, fun = mean) + facet_wrap(~expend_cat) + 
+    xlab(&quot;Civil War Role of State&quot;) + ylab(&quot;Average Teacher Salary (in thousands of US dollars)&quot;) + 
+    ggtitle(&quot;Teacher Salary and Civil War State Role by Levels of Expenditure per Student&quot;) + 
+    scale_fill_brewer(palette = &quot;Blues&quot;) + theme(axis.text.x = element_text(angle = 60, 
+    vjust = 0.4))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-3-3.png" width="672" style="display: block; margin: auto;" /> The correlation heatmap primarily shows moderate correlations between most of the numeric variables. Overall, 'verbal', 'sat', 'math', and 'frac' all show strong correlations with each other. 'Salary' and 'expend' have a fairly strong positive correlation of 0.87. The scatterplot shows an overall positive correlation between church attendance and teen pregnancies. The 'confederate' states tend to have a higher church attendance percentage and reported teen pregnancies, while the 'union' states tend to have a lower church attendance percentage and reported teen pregnancies. 'Border' and 'other' states generally fall in the middle range relative to the other states. The bar chart shows that 'medium' level expenditures are found in all civil war state types, and that the 'union' states in the medium range have the highest average teacher salary while the 'border' states in the medium range have the lowest average teacher salary. 'Low' level expenditures are found only in 'other' and 'confederate' states and have the lowest average teacher salary overall. 'High' level expenditures are found only in 'other' and 'union' states and have the highest average teacher salary overall. 'High' level expenditures have higher average teacher salaries whereas 'low' level expenditures have the lowest average teacher salaries.</p>
+</div>
+<div id="dimensionality-reduction" class="section level2">
+<h2>Dimensionality Reduction</h2>
+<pre class="r"><code># Determine appropriate number of clusters.
+library(cluster)
+pam_dat &lt;- project1 %&gt;% select(Teen, sat, salary)
+kmeans1 &lt;- pam_dat %&gt;% scale %&gt;% kmeans(3)
+kmeans1</code></pre>
+<pre><code>## K-means clustering with 3 clusters of sizes 14, 19, 17
+## 
+## Cluster means:
+##         Teen         sat     salary
+## 1 -0.8256122  1.04165412 -0.4441560
+## 2 -0.2585921 -0.69040974  0.9466841
+## 3  0.9689307 -0.08619839 -0.6922831
+## 
+## Clustering vector:
+##  [1] 2 3 3 3 2 1 2 2 3 3 2 1 1 1 2 1 3 3 2 2 2 2 1 1 3 1 3 1 1 1 2 3 3 2 2 3 2 2
+## [39] 2 3 1 3 3 1 2 2 2 1 3 3
+## 
+## Within cluster sum of squares by cluster:
+## [1] 18.34242 27.97169 21.60165
+##  (between_SS / total_SS =  53.8 %)
+## 
+## Available components:
+## 
+## [1] &quot;cluster&quot;      &quot;centers&quot;      &quot;totss&quot;        &quot;withinss&quot;     &quot;tot.withinss&quot;
+## [6] &quot;betweenss&quot;    &quot;size&quot;         &quot;iter&quot;         &quot;ifault&quot;</code></pre>
+<pre class="r"><code>kmeansclust &lt;- project1 %&gt;% mutate(cluster = as.factor(kmeans1$cluster))
+sil_width &lt;- vector()
+for (i in 2:10) {
+    kms &lt;- kmeans(pam_dat, centers = i)
+    sil &lt;- silhouette(kms$cluster, dist(project1))
+    sil_width[i] &lt;- mean(sil[, 3])
+}
+ggplot() + geom_line(aes(x = 1:10, y = sil_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pam1 &lt;- pam_dat %&gt;% pam(k = 2)
+pam1</code></pre>
+<pre><code>## Medoids:
+##      ID Teen  sat salary
+## [1,]  5   59  902 41.078
+## [2,]  2   62 1029 31.144
+## Clustering vector:
+##  [1] 1 2 2 1 1 2 1 1 1 1 1 2 2 2 1 2 2 2 1 1 1 2 2 2 2 2 1 2 2 1 1 2 1 1 2 2 1 1
+## [39] 1 1 2 2 1 2 1 1 1 2 1 2
+## Objective function:
+##    build     swap 
+## 38.76484 29.30755 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code>pamclust &lt;- pam_dat %&gt;% mutate(cluster = as.factor(pam1$clustering))
+library(tidyverse)
+library(dplyr)
+library(GGally)
+pamclust %&gt;% ggpairs(columns = 1:3, aes(color = cluster))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pamclust %&gt;% group_by(cluster) %&gt;% summarize_if(is.numeric, mean, 
+    na.rm = T)</code></pre>
+<pre><code>## # A tibble: 2 x 4
+##   cluster  Teen   sat salary
+##   &lt;fct&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+## 1 1        54.5  901.   37.7
+## 2 2        54.9 1036.   31.7</code></pre>
+<pre class="r"><code>plot(pam1, which = 2)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>To begin the cluster analysis, I first processed my data by scaling three of my numeric variables because the units differ: 'Teen','sat', and 'salary'. I then choose my number of clusters by selecting the k value with the highest silhouette width on the graph. This value was 2. The average silhouette width is 0.67, which is interpreted as reasonable structure being found.I used only numerical values, so using gower was not necessary, and I ran PAM cluster analysis. From the visualization of the clusters, the correlation between 'sat' and 'Teen' is -0.146. The correlation between 'salary' and 'Teen' is -0.193. The correlation between 'salary' and 'sat' is -0.440. None of these correlation values show strong correlation.</p>
+<p>...</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
