@@ -1,0 +1,46 @@
+---
+title: Using Python & R
+author: Emma Friedman
+date: '2020-12-11'
+slug: using-python-r
+categories: []
+tags: []
+description: ''
+---
+
+# Heading
+Throughout my time in Computational Biology and Bioinformatics, I have used R and python to explore, manipulate, and analyze different data. I will be using the dataset "Visits to Physician Office" (VPO) from the item OFP in the Ecdat package. 'ofp' is the number of physician office visits and 'numchron' is the number of chronic conditions of the individual. 
+![Image from "https://www.bancroft.org/bancroft_news/child-fear-doctors-office-keys-cope/doctors-office/"](/post/2020-12-11-using-python-r_files/VPO.jpg)
+```{R}
+library(tidyverse)
+VPO <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/OFP.csv")
+head(VPO)
+```
+
+```{python}
+import numpy as np
+import pandas
+VPO = pandas.read_csv("OFP.csv")
+VPO = VPO[['ofp','numchron']]
+print(VPO.head())
+
+
+VPO.describe()
+
+np.mean(VPO[VPO.numchron>VPO["numchron"].median()].ofp)
+np.mean(VPO[VPO.numchron<VPO["numchron"].median()].ofp)
+```
+
+
+## Reticulate
+```{R}
+library(reticulate)
+
+```
+more 
+```{python}
+
+
+```
+fff
+

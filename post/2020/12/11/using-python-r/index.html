@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Emma Friedman" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
+    <title>Using Python &amp; R</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../../../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../../../../post/">BLOG</a></li>
+        
+        <li><a href="../../../../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../../../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../../../../post/2020/12/11/using-python-r/">Using Python &amp; R</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         December 11, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="heading" class="section level1">
+<h1>Heading</h1>
+<p>Throughout my time in Computational Biology and Bioinformatics, I have used R and python to explore, manipulate, and analyze different data. I will be using the dataset &quot;Visits to Physician Office&quot; (VPO) from the item OFP in the Ecdat package. 'ofp' is the number of physician office visits and 'numchron' is the number of chronic conditions of the individual. <img src="../../../../../post/2020-12-11-using-python-r_files/VPO.jpg" alt="Image from &quot;https://www.bancroft.org/bancroft_news/child-fear-doctors-office-keys-cope/doctors-office/&quot;" /></p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+## ✓ tibble  3.0.3     ✓ dplyr   1.0.1
+## ✓ tidyr   1.1.1     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>VPO &lt;- read.csv(&quot;https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/OFP.csv&quot;)
+head(VPO)</code></pre>
+<pre><code>##   X ofp ofnp opp opnp emr hosp numchron adldiff age black    sex maried school
+## 1 1   5    0   0    0   0    1        2       0 6.9   yes   male    yes      6
+## 2 2   1    0   2    0   2    0        2       0 7.4    no female    yes     10
+## 3 3  13    0   0    0   3    3        4       1 6.6   yes female     no     10
+## 4 4  16    0   5    0   1    1        2       1 7.6    no   male    yes      3
+## 5 5   3    0   0    0   0    0        2       1 7.9    no female    yes      6
+## 6 6  17    0   0    0   0    0        5       1 6.6    no female     no      7
+##   faminc employed privins medicaid region  hlth
+## 1 2.8810      yes     yes       no  other other
+## 2 2.7478       no     yes       no  other other
+## 3 0.6532       no      no      yes  other  poor
+## 4 0.6588       no     yes       no  other  poor
+## 5 0.6588       no     yes       no  other other
+## 6 0.3301       no      no      yes  other  poor</code></pre>
+<pre class="python"><code>import numpy as np
+import pandas
+VPO = pandas.read_csv(&quot;OFP.csv&quot;)
+VPO = VPO[[&#39;ofp&#39;,&#39;numchron&#39;]]
+print(VPO.head())
+</code></pre>
+<pre><code>##    ofp  numchron
+## 0    5         2
+## 1    1         2
+## 2   13         4
+## 3   16         2
+## 4    3         2</code></pre>
+<pre class="python"><code>VPO.describe()</code></pre>
+<pre><code>##                ofp     numchron
+## count  4406.000000  4406.000000
+## mean      5.774399     1.541988
+## std       6.759225     1.349632
+## min       0.000000     0.000000
+## 25%       1.000000     1.000000
+## 50%       4.000000     1.000000
+## 75%       8.000000     2.000000
+## max      89.000000     8.000000</code></pre>
+<pre class="python"><code>np.mean(VPO[VPO.numchron&gt;VPO[&quot;numchron&quot;].median()].ofp)</code></pre>
+<pre><code>## 7.563462559745088</code></pre>
+<pre class="python"><code>np.mean(VPO[VPO.numchron&lt;VPO[&quot;numchron&quot;].median()].ofp)</code></pre>
+<pre><code>## 3.3824390243902438</code></pre>
+<div id="reticulate" class="section level2">
+<h2>Reticulate</h2>
+<pre class="r"><code>library(reticulate)</code></pre>
+<p>more</p>
+<p>fff</p>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../../../../js/docs.min.js"></script>
+<script src="../../../../../js/main.js"></script>
+
+<script src="../../../../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
