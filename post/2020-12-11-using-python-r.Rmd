@@ -1,5 +1,5 @@
 ---
-title: Using Python & R
+title: Using Python & Reticulate Package 
 author: Emma Friedman
 date: '2020-12-11'
 slug: using-python-r
@@ -8,8 +8,8 @@ tags: []
 description: ''
 ---
 
-# Heading
-Throughout my time in Computational Biology and Bioinformatics, I have used R and python to explore, manipulate, and analyze different data. I will be using the dataset "Visits to Physician Office" (VPO) from the item OFP in the Ecdat package. 'ofp' is the number of physician office visits and 'numchron' is the number of chronic conditions of the individual. 
+# Using Python with the "Visits to Physician Office" Dataset
+Throughout my semester in Computational Biology and Bioinformatics, I have used R and python to explore, manipulate, and analyze different data. I will be using the dataset "Visits to Physician Office" (VPO) from the item OFP in the Ecdat package. 'ofp' is the number of physician office visits and 'numchron' is the number of chronic conditions of the individual. 
 ![Image from "https://www.bancroft.org/bancroft_news/child-fear-doctors-office-keys-cope/doctors-office/"](/post/2020-12-11-using-python-r_files/VPO.jpg)
 ```{R}
 library(tidyverse)
@@ -19,28 +19,36 @@ head(VPO)
 
 ```{python}
 import numpy as np
-import pandas
-VPO = pandas.read_csv("OFP.csv")
+import pandas as pd
+VPO = pd.read_csv("OFP.csv")
 VPO = VPO[['ofp','numchron']]
 print(VPO.head())
 
-
 VPO.describe()
-
+```
+The average number of physician office visits ('ofp') is 5.7744 visits, and the standard deviation is 6.7592. The average number of chronic conditions ('numchron') is 1.5420 conditions, and the standard deviation is 1.3496. The median values of 'ofp' and 'numchron' are 4.0 and 1.0, respectively. 
+```{python}
 np.mean(VPO[VPO.numchron>VPO["numchron"].median()].ofp)
 np.mean(VPO[VPO.numchron<VPO["numchron"].median()].ofp)
 ```
+The mean of the variable representing the number of office patient visits (‘OFP’) when the number of chronic conditions ('numchron’) is greater than the median number of chronic conditions is 7.5635. 
+The mean of the variable ‘OFP’ when ‘numchron’ is less than the median 'numchron' is 3.3824. This suggests that patients with more chronic conditions have more visits to their physician’s office on average.
 
-
-## Reticulate
+## Using Reticulate: allows Python and R to communicate!
+Reticulate allows the use of code across python and R. Basically, it allows them to play! Here is an example of using reticulate:
 ```{R}
 library(reticulate)
-
 ```
-more 
+
 ```{python}
-
-
+import pandas as pd
+VPO = pd.read_csv("OFP.csv")
 ```
-fff
+
+```{R}
+library(ggplot2)
+
+ggplot()+geom_point(aes(x=py$VPO$numchron,y=py$VPO$ofp))+geom_count()+scale_size_area()
+```
+The plot, which accessed the Python-defined objects using py$, shows that the majority of individuals in the "Visits to Physician Office" dataset have less than 2 chronic conditions ('numchron'). The highest number of patient office visits ('ofp') is 88, and the individual has 2 chronic conditions. 
 

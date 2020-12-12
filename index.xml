@@ -8,12 +8,12 @@
     <language>en-US</language>
     <lastBuildDate>Fri, 11 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Using Python &amp; R</title>
+      <title>Using Python &amp; Reticulate Package</title>
       <link>/post/2020/12/11/using-python-r/</link>
       <pubDate>Fri, 11 Dec 2020 00:00:00 +0000</pubDate>
       
       <guid>/post/2020/12/11/using-python-r/</guid>
-      <description>Heading Throughout my time in Computational Biology and Bioinformatics, I have used R and python to explore, manipulate, and analyze different data. I will be using the dataset &amp;quot;Visits to Physician Office&amp;quot; (VPO) from the item OFP in the Ecdat package. &#39;ofp&#39; is the number of physician office visits and &#39;numchron&#39; is the number of chronic conditions of the individual. library(tidyverse) ## ── Attaching packages ─────────────────────────────────────────── tidyverse 1.3.0 ── ## ✓ ggplot2 3.</description>
+      <description>Using Python with the &amp;quot;Visits to Physician Office&amp;quot; Dataset Throughout my semester in Computational Biology and Bioinformatics, I have used R and python to explore, manipulate, and analyze different data. I will be using the dataset &amp;quot;Visits to Physician Office&amp;quot; (VPO) from the item OFP in the Ecdat package. &#39;ofp&#39; is the number of physician office visits and &#39;numchron&#39; is the number of chronic conditions of the individual. library(tidyverse) ## ── Attaching packages ─────────────────────────────────────────── tidyverse 1.</description>
     </item>
     
     <item>
