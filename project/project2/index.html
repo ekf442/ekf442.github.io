@@ -60,7 +60,7 @@
  
 <div class="blog-title">
           <h4>
-         January 1, 0001 
+         November 22, 2020 
             &nbsp;&nbsp;
             
           </h4>
@@ -194,7 +194,7 @@ rand_dist[i]&lt;-mean(new[new$sex==&quot;female&quot;,]$ofp)-
 {hist(rand_dist,main=&quot;&quot;,ylab=&quot;&quot;); abline(v = c(-0.5939, 0.5939),col=&quot;red&quot;)}</code></pre>
 <p><img src="../../project/project2_files/figure-html/unnamed-chunk-2-2.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>mean(rand_dist &gt; 0.5939 | rand_dist &lt; -0.5939) #pvalue</code></pre>
-<pre><code>## [1] 0.0038</code></pre>
+<pre><code>## [1] 0.004</code></pre>
 <p>The null hypothesis is that there is no mean difference in physician office visits between males and females. The alternative hypothesis is that there is a mean difference in physician office visits between males and females.</p>
 <p><span class="math inline">\(H_0:\mu_{female}=\mu_{male}\)</span> vs. <span class="math inline">\(H_A:\mu_{female}\ne \mu_{male}\)</span></p>
 <p>Females visit the physician office 0.5939 times more on average than males. After performing randomization, the p-value was 0.0056, which indicates we are able to reject the null hypothesis and say there is a mean difference in physician office visits between males and females.</p>
@@ -301,7 +301,7 @@ coef(fit)
 ## Bootstrapped SEs (resampling residuals)
 resid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
 <pre><code>##   (Intercept) privinsyes     faminc_c privinsyes:faminc_c
-## 1   0.2328135  0.2635602 1.151719e-05        1.202325e-05</code></pre>
+## 1   0.2359328  0.2627899 1.149917e-05         1.20057e-05</code></pre>
 <p>The bootstrapped SEs are extremely similar to the original SEs, and differ slightly to the robust SEs (specifically for 'faminc_c'). Overall, the SE and p-values are similar among each model.</p>
 </div>
 <div id="logistic-regression-model-predicting-a-binary-variable" class="section level2">

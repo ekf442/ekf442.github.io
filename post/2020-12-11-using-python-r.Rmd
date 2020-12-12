@@ -29,7 +29,7 @@ The average number of physician office visits ('ofp') is 5.7744 visits, and the 
 ```{python}
 np.mean(VPO[VPO.numchron<VPO["numchron"].median()].ofp)
 ```
-The mean of the variable ‘OFP’ when ‘numchron’ is less than the median 'numchron' is 3.3824.
+The mean of the variable representing the number of office patient visits (‘OFP’) when the number of chronic conditions ('numchron’) is less than the median number of chronic conditions is 3.3824.
 
 ```{python}
 np.mean(VPO[VPO.numchron>VPO["numchron"].median()].ofp)
