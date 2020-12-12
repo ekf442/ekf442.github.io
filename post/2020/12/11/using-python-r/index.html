@@ -120,9 +120,8 @@ print(VPO.head())</code></pre>
 <pre class="python"><code>import pandas as pd
 VPO = pd.read_csv(&quot;OFP.csv&quot;)</code></pre>
 <pre class="r"><code>library(ggplot2)
-
-ggplot()+geom_point(aes(x=py$VPO$numchron,y=py$VPO$ofp))+geom_count()+scale_size_area()</code></pre>
-<p><img src="../../../../../post/2020-12-11-using-python-r_files/figure-html/unnamed-chunk-7-1.png" width="672" /> The plot, which accessed the Python-defined objects using py$, shows that the majority of individuals in the &quot;Visits to Physician Office&quot; dataset have less than 2 chronic conditions ('numchron'). The highest number of patient office visits ('ofp') is 88, and the individual has 2 chronic conditions.</p>
+ggplot()+geom_point(aes(x=py$VPO$numchron,y=py$VPO$ofp))+geom_count()</code></pre>
+<p><img src="../../../../../post/2020-12-11-using-python-r_files/figure-html/unnamed-chunk-7-1.png" width="672" /> The plot, which accessed the Python-defined objects using py$, shows that the majority of individuals in the &quot;Visits to Physician Office&quot; dataset have less than 2 chronic conditions ('numchron'). The highest number of patient office visits ('ofp') is 88, and the individual has 2 chronic conditions. Reticulate allows R and Python to communicate and share information across code chunks.</p>
 </div>
 </div>
 
