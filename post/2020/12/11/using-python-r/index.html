@@ -84,22 +84,7 @@
 <pre><code>## ── Conflicts ────────────────────────────────────────────── tidyverse_conflicts() ──
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>VPO &lt;- read.csv(&quot;https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/OFP.csv&quot;)
-head(VPO)</code></pre>
-<pre><code>##   X ofp ofnp opp opnp emr hosp numchron adldiff age black    sex maried school
-## 1 1   5    0   0    0   0    1        2       0 6.9   yes   male    yes      6
-## 2 2   1    0   2    0   2    0        2       0 7.4    no female    yes     10
-## 3 3  13    0   0    0   3    3        4       1 6.6   yes female     no     10
-## 4 4  16    0   5    0   1    1        2       1 7.6    no   male    yes      3
-## 5 5   3    0   0    0   0    0        2       1 7.9    no female    yes      6
-## 6 6  17    0   0    0   0    0        5       1 6.6    no female     no      7
-##   faminc employed privins medicaid region  hlth
-## 1 2.8810      yes     yes       no  other other
-## 2 2.7478       no     yes       no  other other
-## 3 0.6532       no      no      yes  other  poor
-## 4 0.6588       no     yes       no  other  poor
-## 5 0.6588       no     yes       no  other other
-## 6 0.3301       no      no      yes  other  poor</code></pre>
+<pre class="r"><code>VPO &lt;- read.csv(&quot;https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/OFP.csv&quot;)</code></pre>
 <pre class="python"><code>import numpy as np
 import pandas as pd
 VPO = pd.read_csv(&quot;OFP.csv&quot;)
@@ -122,13 +107,14 @@ print(VPO.head())</code></pre>
 ## 75%       8.000000     2.000000
 ## max      89.000000     8.000000</code></pre>
 <p>The average number of physician office visits ('ofp') is 5.7744 visits, and the standard deviation is 6.7592. The average number of chronic conditions ('numchron') is 1.5420 conditions, and the standard deviation is 1.3496. The median values of 'ofp' and 'numchron' are 4.0 and 1.0, respectively.</p>
-<pre class="python"><code>np.mean(VPO[VPO.numchron&gt;VPO[&quot;numchron&quot;].median()].ofp)</code></pre>
-<pre><code>## 7.563462559745088</code></pre>
 <pre class="python"><code>np.mean(VPO[VPO.numchron&lt;VPO[&quot;numchron&quot;].median()].ofp)</code></pre>
 <pre><code>## 3.3824390243902438</code></pre>
-<p>The mean of the variable representing the number of office patient visits (‘OFP’) when the number of chronic conditions ('numchron’) is greater than the median number of chronic conditions is 7.5635. The mean of the variable ‘OFP’ when ‘numchron’ is less than the median 'numchron' is 3.3824. This suggests that patients with more chronic conditions have more visits to their physician’s office on average.</p>
-<div id="using-reticulate-allows-python-and-r-to-communicate" class="section level2">
-<h2>Using Reticulate: allows Python and R to communicate!</h2>
+<p>The mean of the variable ‘OFP’ when ‘numchron’ is less than the median 'numchron' is 3.3824.</p>
+<pre class="python"><code>np.mean(VPO[VPO.numchron&gt;VPO[&quot;numchron&quot;].median()].ofp)</code></pre>
+<pre><code>## 7.563462559745088</code></pre>
+<p>The mean of the variable representing the number of office patient visits (‘OFP’) when the number of chronic conditions ('numchron’) is greater than the median number of chronic conditions is 7.5635. This suggests that patients with more chronic conditions have more visits to their physician’s office on average.</p>
+<div id="using-reticulate-python-and-r-communicate" class="section level2">
+<h2>Using Reticulate: Python and R communicate!</h2>
 <p>Reticulate allows the use of code across python and R. Basically, it allows them to play! Here is an example of using reticulate:</p>
 <pre class="r"><code>library(reticulate)</code></pre>
 <pre class="python"><code>import pandas as pd
@@ -136,7 +122,7 @@ VPO = pd.read_csv(&quot;OFP.csv&quot;)</code></pre>
 <pre class="r"><code>library(ggplot2)
 
 ggplot()+geom_point(aes(x=py$VPO$numchron,y=py$VPO$ofp))+geom_count()+scale_size_area()</code></pre>
-<p><img src="../../../../../post/2020-12-11-using-python-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /> The plot, which accessed the Python-defined objects using py$, shows that the majority of individuals in the &quot;Visits to Physician Office&quot; dataset have less than 2 chronic conditions ('numchron'). The highest number of patient office visits ('ofp') is 88, and the individual has 2 chronic conditions.</p>
+<p><img src="../../../../../post/2020-12-11-using-python-r_files/figure-html/unnamed-chunk-7-1.png" width="672" /> The plot, which accessed the Python-defined objects using py$, shows that the majority of individuals in the &quot;Visits to Physician Office&quot; dataset have less than 2 chronic conditions ('numchron'). The highest number of patient office visits ('ofp') is 88, and the individual has 2 chronic conditions.</p>
 </div>
 </div>
 

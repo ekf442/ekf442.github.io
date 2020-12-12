@@ -14,7 +14,6 @@ Throughout my semester in Computational Biology and Bioinformatics, I have used 
 ```{R}
 library(tidyverse)
 VPO <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/Ecdat/OFP.csv")
-head(VPO)
 ```
 
 ```{python}
@@ -28,13 +27,17 @@ VPO.describe()
 ```
 The average number of physician office visits ('ofp') is 5.7744 visits, and the standard deviation is 6.7592. The average number of chronic conditions ('numchron') is 1.5420 conditions, and the standard deviation is 1.3496. The median values of 'ofp' and 'numchron' are 4.0 and 1.0, respectively. 
 ```{python}
-np.mean(VPO[VPO.numchron>VPO["numchron"].median()].ofp)
 np.mean(VPO[VPO.numchron<VPO["numchron"].median()].ofp)
 ```
-The mean of the variable representing the number of office patient visits (‘OFP’) when the number of chronic conditions ('numchron’) is greater than the median number of chronic conditions is 7.5635. 
-The mean of the variable ‘OFP’ when ‘numchron’ is less than the median 'numchron' is 3.3824. This suggests that patients with more chronic conditions have more visits to their physician’s office on average.
+The mean of the variable ‘OFP’ when ‘numchron’ is less than the median 'numchron' is 3.3824.
 
-## Using Reticulate: allows Python and R to communicate!
+```{python}
+np.mean(VPO[VPO.numchron>VPO["numchron"].median()].ofp)
+```
+The mean of the variable representing the number of office patient visits (‘OFP’) when the number of chronic conditions ('numchron’) is greater than the median number of chronic conditions is 7.5635. This suggests that patients with more chronic conditions have more visits to their physician’s office on average.
+
+
+## Using Reticulate: Python and R communicate!
 Reticulate allows the use of code across python and R. Basically, it allows them to play! Here is an example of using reticulate:
 ```{R}
 library(reticulate)
